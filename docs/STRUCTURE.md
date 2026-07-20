@@ -21,13 +21,22 @@
 robin-fleet/
 ├── README.md                 # 项目主页（GitHub首页展示）
 │                             # 包含：项目愿景、核心能力、架构图、
-│                             # 差异化优势、模块介绍、比赛履历、团队、路线图
+│                             # 差异化优势、模块介绍、比赛履历、论文、团队、路线图
 ├── LICENSE                   # MIT 开源协议
 ├── .gitignore                # Git忽略规则（Python + Node + 敏感文件）
 │
 ├── docs/                     # 📖 文档目录
 │   ├── STRUCTURE.md          # 本文件 — 文档组织说明
 │   └── COMPETITIONS.md       # 比赛材料索引
+│
+├── papers/                   # 📄 学术论文
+│   └── CAR-bench-2026/       #   CAR-bench @ IJCAI-ECAI 2026 技术报告
+│       ├── README.md         #     论文摘要页（含架构图、核心数据）
+│       ├── main.tex          #     LaTeX源码（4页，IJCAI模板）
+│       ├── references.bib    #     15条参考文献
+│       ├── architecture.svg  #     五层指挥链架构图
+│       ├── ijcai26.sty       #     IJCAI模板样式
+│       └── named.bst         #     参考文献样式
 │
 ├── showcase/                 # 🎬 演示材料（规划中）
 │   ├── screenshots/          #   系统截图

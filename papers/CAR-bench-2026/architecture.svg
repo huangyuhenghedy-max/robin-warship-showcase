@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 780" font-family="Times New Roman, Times, serif">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="300" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a1a1a">Robin Fleet Five-Layer Command Chain Architecture</text>
+
+  <!-- Layer 1: Flagship -->
+  <rect x="30" y="50" width="540" height="95" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="300" y="72" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e3a5f">Layer 1: Flagship（旗舰）</text>
+  <text x="300" y="88" text-anchor="middle" font-size="10" fill="#444">Global Strategy · Intent Understanding · Task Decomposition · Resource Allocation</text>
+  <text x="300" y="104" text-anchor="middle" font-size="9" fill="#666">Intent Classifier (Base/Hallucination/Disambiguation) → Policy Auditor → BudgetDial Cost Router</text>
+  <text x="300" y="120" text-anchor="middle" font-size="9" fill="#666">19 Policy Constraints · Pre-checks tool availability · Resolves ambiguity via Robin Brain</text>
+  <text x="300" y="138" text-anchor="middle" font-size="9" fill="#666">Selects LLM tier (P1–P5) based on task complexity</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="300" y1="145" x2="300" y2="165" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowhead-blue)"/>
+  <text x="315" y="158" font-size="8" fill="#2563eb">A2A: TaskPlan</text>
+
+  <!-- Layer 2: Fleet -->
+  <rect x="30" y="168" width="540" height="80" rx="6" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+  <text x="300" y="190" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e1b4b">Layer 2: Fleet（编队）</text>
+  <text x="300" y="206" text-anchor="middle" font-size="10" fill="#444">Multi-Fleet Coordination · Cross-Domain Collaboration · Parallel Task Scheduling</text>
+  <text x="300" y="222" text-anchor="middle" font-size="9" fill="#666">Navigation · Vehicle Control · Charging · Productivity · Weather · Cross-Domain</text>
+  <text x="300" y="238" text-anchor="middle" font-size="9" fill="#666">Inter-fleet state synchronization · Conflict resolution via A2A</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="300" y1="248" x2="300" y2="268" stroke="#4f46e5" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="315" y="261" font-size="8" fill="#4f46e5">A2A: SubtaskDecomposition</text>
+
+  <!-- Layer 3: Squad -->
+  <rect x="30" y="271" width="540" height="80" rx="6" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+  <text x="300" y="293" text-anchor="middle" font-size="12" font-weight="bold" fill="#4a0e2b">Layer 3: Squad（小队）</text>
+  <text x="300" y="309" text-anchor="middle" font-size="10" fill="#444">Subtask Execution · Information Gathering · Intermediate Result Validation</text>
+  <text x="300" y="325" text-anchor="middle" font-size="9" fill="#666">Information-Gathering Squad (get tools) · State-Modification Squad (set tools)</text>
+  <text x="300" y="341" text-anchor="middle" font-size="9" fill="#666">Policy Compliance Squad (12 code-checkable policies · 7 LLM-judged)</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="300" y1="351" x2="300" y2="371" stroke="#db2777" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="315" y="364" font-size="8" fill="#db2777">A2A: ToolCallSpec</text>
+
+  <!-- Layer 4: Captain -->
+  <rect x="30" y="374" width="540" height="80" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="300" y="396" text-anchor="middle" font-size="12" font-weight="bold" fill="#4a2e00">Layer 4: Captain（队长）</text>
+  <text x="300" y="412" text-anchor="middle" font-size="10" fill="#444">Single-Task Execution · Parameter Validation · Error Detection &amp; Recovery</text>
+  <text x="300" y="428" text-anchor="middle" font-size="9" fill="#666">MissingToolGuard · ParamSchemaGuard · ActionClaimGuard</text>
+  <text x="300" y="444" text-anchor="middle" font-size="9" fill="#666">Triple validation prevents hallucination, invalid params, and false claims</text>
+
+  <!-- Arrow 4→5 -->
+  <line x1="300" y1="454" x2="300" y2="474" stroke="#d97706" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="315" y="467" font-size="8" fill="#d97706">A2A: LLMInvocation</text>
+
+  <!-- Layer 5: Executor -->
+  <rect x="30" y="477" width="540" height="80" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="300" y="499" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d3a1a">Layer 5: Executor（执行Agent）</text>
+  <text x="300" y="515" text-anchor="middle" font-size="10" fill="#444">LLM Invocation · Tool Execution · Result Return</text>
+  <text x="300" y="531" text-anchor="middle" font-size="9" fill="#666">LiteLLM Multi-Model Router · Extended Thinking · BudgetDial P1–P5</text>
+  <text x="300" y="547" text-anchor="middle" font-size="9" fill="#666">Claude Opus 4.6 · GPT-5 · Gemini 2.5 Flash/Pro · Claude Sonnet 4</text>
+
+  <!-- Sidebar: Graceful Degradation -->
+  <rect x="30" y="577" width="540" height="60" rx="6" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="300" y="596" text-anchor="middle" font-size="10" font-weight="bold" fill="#3b0764">Graceful Degradation（优雅降级）</text>
+  <text x="300" y="612" text-anchor="middle" font-size="9" fill="#555">LLM timeout → Downgrade model tier | Missing tool → Direct rejection</text>
+  <text x="300" y="628" text-anchor="middle" font-size="9" fill="#555">Policy violation → Abort, replan | Ambiguity → Internal resolve, then ask user</text>
+
+  <!-- Feedback loop -->
+  <path d="M 570 517 Q 590 517 590 400 Q 590 300 570 200" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+  <text x="578" y="360" font-size="8" fill="#9333ea" transform="rotate(90, 578, 360)">Feedback: Robin Brain + Dream Agent</text>
+
+  <!-- Bottom: A2A Protocol -->
+  <rect x="100" y="657" width="220" height="28" rx="14" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1"/>
+  <text x="210" y="675" text-anchor="middle" font-size="10" fill="#333">A2A Protocol v1.0 (JSON-RPC 2.0)</text>
+
+  <rect x="340" y="657" width="160" height="28" rx="14" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1"/>
+  <text x="420" y="675" text-anchor="middle" font-size="10" fill="#333">BudgetDial P1–P5 Router</text>
+
+  <!-- Bottom: Foundation -->
+  <rect x="100" y="695" width="400" height="28" rx="14" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1"/>
+  <text x="300" y="713" text-anchor="middle" font-size="10" fill="#333">Robin Brain (4-layer KB) + Dream Agent (Memory Consolidation)</text>
+
+  <!-- A2A flow arrows at bottom -->
+  <line x1="210" y1="685" x2="210" y2="695" stroke="#9ca3af" stroke-width="1"/>
+  <line x1="420" y1="685" x2="420" y2="695" stroke="#9ca3af" stroke-width="1"/>
+
+  <!-- Legend -->
+  <text x="300" y="745" text-anchor="middle" font-size="9" fill="#888">Arrows: A2A message flow (TextPart / DataPart) between layers</text>
+  <text x="300" y="762" text-anchor="middle" font-size="9" fill="#888">Dashed line: Knowledge feedback loop via Robin Brain + Dream Agent consolidation</text>
+</svg>

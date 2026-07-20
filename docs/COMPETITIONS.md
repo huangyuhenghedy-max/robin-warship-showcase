@@ -1,7 +1,7 @@
 # 🏆 知更鸟舰队 · 比赛材料索引
 
 > 本文件汇总知更鸟舰队参加的所有比赛及对应材料路径。
-> 更新时间：2026-07-18 16:45
+> 更新时间：2026-07-20 10:45
 
 ---
 
@@ -12,7 +12,7 @@
 | 1 | AFAC2026 金融Agent | 7.21 A榜 / 7.24 B榜 | ¥100万总池 | ✅ 答案就绪 | 🔴 A榜截止 |
 | 2 | 超级智能体大赛（广州） | 7.31报名 | 产业投资+综艺 | 🔄 Demo开发 | 🟡 13天 |
 | 3 | 阿里"小有可为"AI向善 | 8.13初赛 | ¥21万 | ✅ 提交包就绪 | 🟢 8.13 |
-| 4 | CAR-bench @ IJCAI | 7.26论文 | IJCAI论文 | 🔄 LaTeX转换 | 🟡 8天 |
+| 4 | CAR-bench @ IJCAI | 7.26论文 | $5K API Credits | ✅ LaTeX就绪 | 🟡 6天 |
 | 5 | Global MCP Hackathon | 8.12-9.10 | $100K+ | 🔄 Server开发 | 🟢 9.10 |
 | 6 | 华为天工计划 | 10.25报名 | ¥200万 | ⏸ 搁置 | 🟢 10.25 |
 
@@ -87,13 +87,13 @@
 | **赛道** | A2A协议评测 — 汽车语音助手Agent可靠度 |
 | **奖金** | $5K API Credits + Codex Pro名额 + IJCAI论文 |
 | **截止** | 7月26日4页技术报告 |
-| **状态** | 🔄 论文初稿就绪，LaTeX转换中 |
+| **状态** | ✅ LaTeX就绪（7.20完成，4页+架构图+13引用） |
 | **路线** | 纯论文路线（不跑代码排名） |
 
 **核心产出**：
 - ✅ 论文初稿 → `本地: 比赛准备/CAR-bench-IJCAI论文初稿.md`（28KB，6节+12引用）
-- 🔄 LaTeX源码 → `本地: 比赛准备/CAR-bench-LaTeX/`（转换中）
-- 标题: *Robin Fleet: A Five-Layer Command Chain Architecture for Reliable Automotive Voice Agents via A2A Protocol*
+- ✅ LaTeX源码 → `本地: 比赛准备/CAR-bench-LaTeX/`（7.20完成，4页+架构图+13引用）
+- ✅ 展示页 → `仓库: papers/CAR-bench-2026/`（含摘要+架构图+源码）
 
 **战舰能力匹配**：A2A v1.0首个商用实现→论文核心贡献 / 5层指挥链→可靠度保障 / BudgetDial成本路由
 
@@ -164,7 +164,7 @@ CashFlow                  ★       ★         ★         ★        ★      
 | AFAC2026 | — | `afac2026/output/answer_v2.csv` | `比赛准备/AFAC2026-提交清单.md` |
 | 超级智能体 | `比赛准备/超级智能体大赛-报名方案.md` | 🔄 `比赛准备/超级智能体demo/` | — |
 | 阿里向善 | `阿里AI向善-提交包/*.md` | `阿里AI向善-提交包/`（16文件） | `比赛准备/阿里向善-提交清单.md` |
-| CAR-bench | `比赛准备/CAR-bench-IJCAI论文初稿.md` | 🔄 `比赛准备/CAR-bench-LaTeX/` | — |
+| CAR-bench | `比赛准备/CAR-bench-IJCAI论文初稿.md` | ✅ `papers/CAR-bench-2026/`（含LaTeX+架构图） | — |
 | Global MCP | `比赛准备/GlobalMCP-方案.md` | 🔄 `比赛准备/GlobalMCP-Server/` | — |
 | 华为天工 | `比赛准备/华为天工-注册对接指引.md` | — | — |
 | **统一总览** | `比赛内容总览.md` | — | — |

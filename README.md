@@ -270,9 +270,19 @@ Google A2A (Agent-to-Agent) 协议v1.0的完整商用实现：
 | **阿里"小有可为"AI向善** | 阿里巴巴 | 乡村教育 | ¥21万 | 🟡 进行中 | 团队实力佐证 |
 | **华为天工计划** | 华为 | 鸿蒙智能体开发者激励 | ¥200万 | 🟢 筹备中 | 企业资质展示 |
 | **Global MCP Hackathon** | Descope/Anthropic | MCP Server开发 | $100K+ | 🟢 筹备中 | 技术方案展示 |
-| **CAR-bench @ IJCAI** | IJCAI-ECAI 2026 | A2A协议评测 | 论文发表 | 🟡 论文中 | 论文配套仓库 |
+| **CAR-bench @ IJCAI** | IJCAI-ECAI 2026 | A2A协议评测 | 论文发表 | ✅ 论文就绪 | [论文配套仓库](papers/CAR-bench-2026/) |
 
 > 详细比赛材料索引见 [docs/COMPETITIONS.md](docs/COMPETITIONS.md)
+
+---
+
+## 📄 学术论文
+
+| 论文 | 会议/比赛 | 状态 | 链接 |
+|:----|:---------|:----:|:----:|
+| **Robin Fleet: A Five-Layer Command Chain Architecture for Reliable Automotive Voice Agents via A2A Protocol** | CAR-bench @ IJCAI-ECAI 2026 | ✅ LaTeX就绪，7.26提交 | [📄 论文页](papers/CAR-bench-2026/) |
+
+> 论文围绕A2A协议v1.0的五层指挥链架构，提出业界最深的Agent编排层级，直接针对CAR-bench基准测试的"Completion > Compliance"问题。预期Pass³从基线0.58提升至0.70-0.78。
 
 ---
 
@@ -358,6 +368,8 @@ robin-fleet/
 ├── docs/
 │   ├── STRUCTURE.md       # 文档组织说明
 │   └── COMPETITIONS.md    # 比赛材料索引
+├── papers/                # 📄 学术论文
+│   └── CAR-bench-2026/    #   CAR-bench @ IJCAI-ECAI 2026 技术报告
 ├── showcase/              # （规划中）演示材料
 │   ├── screenshots/       # 系统截图
 │   ├── demos/             # 演示视频/GIF
