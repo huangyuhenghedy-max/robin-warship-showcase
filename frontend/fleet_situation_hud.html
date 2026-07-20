@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知更鸟战舰 · 战场态势图 (C-4)</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#121823; --panel2:#1a2230; --line:#26303f;
+    --txt:#d7e0ea; --dim:#7d8a9c; --ok:#39d98a; --warn:#f5b942; --bad:#ff5c5c;
+    --def1:#ff3b3b; --def2:#ff7a3b; --def3:#f5b942; --def4:#7ad1ff; --def5:#39d98a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:"Segoe UI",system-ui,"Microsoft YaHei",sans-serif;padding:18px}
+  h1{font-size:18px;margin:0 0 4px;letter-spacing:1px}
+  .sub{color:var(--dim);font-size:12px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+  .card .name{font-weight:600;font-size:15px;margin-bottom:2px}
+  .card .alias{color:var(--dim);font-size:11px;margin-bottom:10px}
+  .defcon{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;
+    padding:3px 8px;border-radius:6px;background:var(--panel2)}
+  .fog{height:6px;background:var(--panel2);border-radius:3px;margin:8px 0;overflow:hidden;position:relative}
+  .fog .mist{position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0 6px,transparent 6px 12px)}
+  .fog .fill{height:100%;background:linear-gradient(90deg,#3a4660,#9fb2cc)}
+  .row{display:flex;justify-content:space-between;font-size:12px;margin:5px 0;color:var(--dim)}
+  .row b{color:var(--txt);font-weight:600}
+  .stat{display:flex;gap:6px;margin-top:8px}
+  .pill{flex:1;text-align:center;font-size:12px;padding:5px 0;border-radius:6px;background:var(--panel2)}
+  .pill.s{border-bottom:2px solid var(--ok)} .pill.f{border-bottom:2px solid var(--bad)}
+  .pill.d{border-bottom:2px solid var(--warn)}
+  .bar{height:5px;border-radius:3px;background:var(--panel2);margin-top:3px;overflow:hidden}
+  .bar i{display:block;height:100%}
+  .legend{margin-top:16px;font-size:11px;color:var(--dim);display:flex;gap:14px;flex-wrap:wrap}
+  .legend span b{color:var(--txt)}
+  #paste{width:100%;height:90px;background:var(--panel);color:var(--txt);border:1px solid var(--line);
+    border-radius:8px;padding:8px;font-family:monospace;font-size:11px;display:none}
+  #banner{font-size:12px;color:var(--warn);margin-bottom:10px;display:none}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+</style>
+</head>
+<body>
+  <h1>🛰️ 知更鸟战舰 · 战场态势图</h1>
+  <div class="sub">DEFCON 警戒 · 战争迷雾 · 损伤评估 — C-4 舰队差异化能力 | 自动刷新 15s</div>
+  <div id="banner"></div>
+  <div id="board" class="grid"></div>
+  <textarea id="paste" placeholder="若本地打开无法自动加载 fleet_status.json，可把该 JSON 内容粘贴此处后点【载入】"></textarea>
+  <div class="legend">
+    <span><b>DEFCON 1</b> 最高警戒(失败≥50%)</span>
+    <span><b>3</b> 失败≥15%</span>
+    <span><b>5</b> 待命/全胜</span>
+    <span><b>迷雾</b> 灰雾=未上报/失联</span>
+    <span><b>损伤</b> 在途+失败任务数</span>
+  </div>
+
+<script>
+const DEF_COLORS={1:'#ff3b3b',2:'#ff7a3b',3:'#f5b942',4:'#7ad1ff',5:'#39d98a'};
+
+function render(data){
+  const board=document.getElementById('board');
+  if(!data||!data.projects){board.innerHTML='<div class="card">无数据</div>';return;}
+  board.innerHTML='';
+  for(const [name,p] of Object.entries(data.projects)){
+    const def=p.defcon||5;
+    const fog=p.fog||0;
+    const failRate=p.fail_rate||0;
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <span class="defcon" style="color:${DEF_COLORS[def]};border:1px solid ${DEF_COLORS[def]}">DEFCON ${def}</span>
+      <div class="name">${name}</div>
+      <div class="alias">${p.alias||''}</div>
+      <div class="fog" title="战争迷雾 ${Math.round(fog*100)}%">
+        <div class="fill" style="width:${Math.round(fog*100)}%"></div>
+        ${fog>0.05?'<div class="mist" style="width:'+Math.round(fog*100)+'%"></div>':''}
+      </div>
+      <div class="row"><span>损伤 (在途+失败)</span><b style="color:${p.damage>0?'#ff5c5c':'#39d98a'}">${p.damage}</b></div>
+      <div class="row"><span>失败率</span><b style="color:${failRate>0.3?'#ff5c5c':failRate>0.1?'#f5b942':'#39d98a'}">${Math.round(failRate*100)}%</b></div>
+      <div class="row"><span>上次上报</span><b>${p.last_seen_ago==null?'从未':p.last_seen_ago+'s前'}</b></div>
+      <div class="stat">
+        <div class="pill s">胜<br><b>${p.success}</b></div>
+        <div class="pill f">败<br><b>${p.fail}</b></div>
+        <div class="pill d">在途<br><b>${p.in_progress}</b></div>
+      </div>
+      <div class="row" style="margin-top:8px"><span>状态</span>
+        <b><span class="dot" style="background:${p.last_status==='success'?'#39d98a':p.last_status==='fail'?'#ff5c5c':'#7d8a9c'}"></span>${p.last_status}</b></div>
+    `;
+    board.appendChild(card);
+  }
+  const up=document.createElement('div');
+  up.style.cssText='grid-column:1/-1;color:#7d8a9c;font-size:11px;margin-top:6px';
+  up.textContent=`运行 ${data.uptime_s}s · 生成于 ${data.generated_at}`;
+  board.appendChild(up);
+}
+
+async function load(){
+  try{
+    const r=await fetch('fleet_status.json?'+Date.now());
+    if(!r.ok) throw new Error('http '+r.status);
+    const d=await r.json();
+    document.getElementById('banner').style.display='none';
+    document.getElementById('paste').style.display='none';
+    render(d);
+  }catch(e){
+    const b=document.getElementById('banner');
+    b.style.display='block';
+    b.textContent='⚠️ 无法自动加载 fleet_status.json（本地 file:// 打开会受限）。把 JSON 粘贴到下方文本框后点【载入】。';
+    const ta=document.getElementById('paste');
+    ta.style.display='block';
+    if(!ta.value.trim()){
+      ta.value='// 粘贴 fleet_status.json 内容\n';
+    }
+  }
+}
+function loadPaste(){
+  try{ const d=JSON.parse(document.getElementById('paste').value); render(d);}catch(e){alert('JSON 解析失败: '+e);}
+}
+document.getElementById('paste').addEventListener('dblclick',loadPaste);
+load(); setInterval(load,15000);
+</script>
+</body>
+</html>

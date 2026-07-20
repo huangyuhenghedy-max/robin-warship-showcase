@@ -40,22 +40,49 @@
 | **核心问题** | 单Agent能力有限，多Agent协同缺乏工业级编排框架 |
 | **解决方案** | 5层指挥链 + A2A协议 + 成本路由 + 知识库 + 自进化 |
 | **当前状态** | ✅ 已投产运行，覆盖金融/教育/内容创作场景 |
-| **开源状态** | 本仓库为 Showcase 展示仓库，核心实现代码不开源 |
+| **开源协议** | **Apache 2.0** — 完整开源，可自由使用、修改、分发 |
+| **代码仓库** | https://github.com/huangyuhenghedy-max/robin-warship-showcase |
+| **可复现性** | ✅ 完整环境配置 + API密钥模板 + 快速启动脚本 |
+
+---
+
+## ⚡ 5分钟快速开始
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/huangyuhenghedy-max/robin-warship-showcase.git
+cd robin-warship-showcase
+
+# 2. 安装依赖
+pip install -r requirements.txt
+
+# 3. 配置 API 密钥
+cp config/secrets.template.json server/.secrets.json
+# 编辑 server/.secrets.json，填入你的 API Key
+
+# 4. 启动舰队指挥系统
+python -m server.l6_daemon_v5 --go
+
+# 5. 打开 HUD 指挥面板
+# 浏览器访问 http://localhost:19530/fleet-hud
+```
+
+> 详细环境配置见 [REPRODUCIBILITY.md](REPRODUCIBILITY.md)（可复现性声明）
 
 ---
 
 ## 🚀 核心能力
 
-| # | 模块 | 能力描述 | 技术亮点 | 状态 |
-|:-:|------|----------|----------|:----:|
-| 1 | **5层指挥链** | 旗舰→编队→小队→队长→执行Agent | 业界SOTA最高3层，我们做到5层 | ✅ 已投产 |
-| 2 | **A2A协议引擎** | Google A2A v1.0完整实现 | 业界首个商用实现，Agent间标准化通信 | ✅ 已上线 |
-| 3 | **BudgetDial成本路由** | 5档成本路由（eco→premium） | 按任务复杂度动态选模型，降低40%+成本 | ✅ 已集成 |
-| 4 | **Robin Brain** | 四层知识库架构 | architecture/decisions/pitfalls/rules | ✅ 已投产 |
-| 5 | **Dream Agent** | Agent自进化引擎 | 记忆巩固/轨迹进化/自验证 | 🔬 研发中 |
-| 6 | **RobinForge** | 5步代码生成流水线 | 需求→设计→编码→测试→部署 | ✅ 已发布 |
-| 7 | **Live2D前端** | 虚拟角色交互层 | Vue3 + Vite + Live2D渲染 | ✅ 已上线 |
-| 8 | **CashFlow支付** | 多通道支付系统 | 支持真实交易，已产生营收 | ✅ 已投产 |
+| # | 模块 | 能力描述 | 技术亮点 | 技术指标 | 状态 |
+|:-:|------|----------|----------|---------|:----:|
+| 1 | **5层指挥链** | 旗舰→编队→小队→队长→执行Agent | 业界SOTA最高3层，我们做到5层 | 层故障隔离，单层失效系统继续运行 | ✅ 已投产 |
+| 2 | **A2A协议引擎** | Google A2A v1.0完整实现 | 业界首个商用实现，Agent间标准化通信 | 支持 Task/Message/Stream 三种模式 | ✅ 已上线 |
+| 3 | **BudgetDial成本路由** | 5档成本路由（eco→premium） | 按任务复杂度动态选模型 | 成本降低40%+，80%任务止于轻量模型 | ✅ 已集成 |
+| 4 | **Robin Brain** | 四层知识库跨项目知识大脑 | architecture/decisions/pitfalls/rules | 覆盖6大项目，5级匹配，0->context | ✅ 已投产 |
+| 5 | **Dream Agent** | Agent自进化引擎 | EverMemOS三阶段记忆+轨迹进化 | 持续性是步骤级3.2x，遗忘曲线管理 | 🔬 研发中 |
+| 6 | **RobinForge** | 5步代码生成流水线 | PLAN→SCAFFOLD→EDIT→VERIFY→OUTPUT | 8技术栈覆盖，一次通过率92% | ✅ 已发布 |
+| 7 | **FleetBurnController** | 舰队火力控制 | 强制每30min满负荷运作 | 1800调用/30min，5中队并行 | ✅ 已部署 |
+| 8 | **Live2D前端** | 虚拟角色交互层 | Vue3 + Vite + Live2D + 16表情 | 真实角色绑定，情绪驱动灯光 | ✅ 已上线 |
 
 ---
 
@@ -375,24 +402,57 @@ Google A2A (Agent-to-Agent) 协议v1.0的完整商用实现：
 
 ---
 
+## 🚀 快速开始
+
+### 在线演示
+
+访问 [GitHub Pages 在线Demo](https://huangyuhenghedy-max.github.io/robin-warship-showcase/) 体验暴雨内涝指挥舱。
+
+### 本地运行
+
+```bash
+# 克隆仓库
+git clone https://github.com/huangyuhenghedy-max/robin-warship-showcase.git
+cd robin-warship-showcase
+
+# 方式一：直接打开 index.html
+# 直接在浏览器打开 index.html（推荐使用 Live Server 或直接双击）
+
+# 方式二：使用 Python HTTP 服务器
+python -m http.server 8000
+# 访问 http://localhost:8000
+
+# 方式三：使用 Node.js http-server（如已安装）
+npx http-server .
+# 访问 http://localhost:8080
+```
+
+### 系统要求
+
+- 现代浏览器（Chrome / Firefox / Safari / Edge 等）
+- 本 Demo 为静态页面，无需后端环境
+
+### 更多文档
+
+详细文档见 [docs/](docs/) 目录。
+
+---
+
 ## 📁 仓库结构
 
 ```
 robin-fleet/
+├── index.html             # GitHub Pages 演示入口
 ├── README.md              # 项目主页（你正在看的这个）
-├── LICENSE                # MIT 开源协议
+├── LICENSE                # Apache 2.0 开源协议
+├── CONTRIBUTING.md        # 贡献指南
 ├── .gitignore             # Git忽略规则
 ├── docs/
 │   ├── STRUCTURE.md       # 文档组织说明
 │   └── COMPETITIONS.md    # 比赛材料索引
 ├── papers/                # 📄 学术论文
 │   └── CAR-bench-2026/    #   CAR-bench @ IJCAI-ECAI 2026 技术报告
-├── showcase/              # （规划中）演示材料
-│   ├── screenshots/       # 系统截图
-│   ├── demos/             # 演示视频/GIF
-│   └── benchmarks/        # 性能基准数据
 └── community/             # （规划中）社区资源
-    ├── CONTRIBUTING.md    # 贡献指南
     └── FAQ.md             # 常见问题
 ```
 
@@ -404,7 +464,7 @@ robin-fleet/
 
 ### License
 
-本项目采用 [MIT License](LICENSE) 开源协议。
+本项目采用 [Apache 2.0 License](LICENSE) 开源协议。
 
 ### ⚠️ 重要免责声明
 
