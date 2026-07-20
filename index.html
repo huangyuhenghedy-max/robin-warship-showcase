@@ -1,11 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Robin Fleet · AI乡村教育辅导老师</title>
-<meta http-equiv="refresh" content="0;url=/robin-warship-showcase/demo/">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robin Fleet · 知更鸟战舰 — GOAI世界人工智能开源大赛</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b1120;--card:#111b2e;--border:#1e2d4a;--text:#94a3b8;--text-bright:#e2e8f0;--accent:#38bdf8;--teal:#22d3ee;--gold:#f59e0b;--rose:#f43f5e;--green:#22c55e;--font:system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%,rgba(56,189,248,.06) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-size:clamp(32px,6vw,64px);font-weight:700;background:linear-gradient(135deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.hero p{font-size:clamp(14px,2vw,20px);color:var(--text);margin-top:16px;max-width:600px;opacity:.7}
+.hero .tags{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap;justify-content:center}
+.hero .tags span{font-size:12px;padding:4px 14px;border-radius:20px;background:rgba(56,189,248,.1);color:var(--accent);border:1px solid rgba(56,189,248,.2)}
+.hero .cta{margin-top:40px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn{font-size:14px;padding:10px 28px;border-radius:8px;border:none;cursor:pointer;font-family:var(--font);font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#0b1120}
+.btn-primary:hover{background:#60cfff;transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,189,248,.25)}
+.btn-outline{background:transparent;color:var(--text-bright);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--card);border-color:var(--text)}
+.stats{display:flex;gap:24px;margin-top:48px;flex-wrap:wrap;justify-content:center}
+.stat{text-align:center}
+.stat .n{font-size:28px;font-weight:700;color:var(--text-bright);font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px;color:var(--text);opacity:.5}
+.section{padding:80px 20px;max-width:1000px;margin:0 auto}
+.section h2{font-size:24px;font-weight:600;color:var(--text-bright);margin-bottom:8px}
+.section .sub{color:var(--text);opacity:.5;margin-bottom:32px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.card{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border);transition:all .2s}
+.card:hover{border-color:rgba(56,189,248,.3);transform:translateY(-2px)}
+.card h3{font-size:15px;color:var(--text-bright);margin-bottom:6px}
+.card p{font-size:13px;color:var(--text);opacity:.7}
+.card .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;margin-top:8px;background:rgba(34,197,94,.1);color:var(--green)}
+.card .tag.wip{background:rgba(245,158,11,.1);color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--text-bright);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.5}
+td{color:var(--text)}
+td.highlight{color:var(--accent);font-weight:500}
+.data-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:16px 0}
+.data-item{background:var(--card);border-radius:8px;padding:14px;border:1px solid var(--border);text-align:center}
+.data-item .v{font-size:22px;font-weight:700;color:var(--accent)}
+.data-item .l{font-size:11px;color:var(--text);opacity:.5;margin-top:4px}
+.issue{background:rgba(244,63,94,.04);border-left:3px solid var(--rose);padding:8px 14px;margin:6px 0;border-radius:0 4px 4px 0;font-size:12px}
+.footer{text-align:center;padding:40px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--text);opacity:.4}
+</style>
 </head>
 <body>
-<p><a href="/robin-warship-showcase/demo/">→ 进入Demo</a></p>
+<div class="hero">
+  <h1>Robin Fleet</h1>
+  <p>5 层指挥链多 Agent 协同编排平台。<br>让几百个 Agent 像舰队一样高效协同。</p>
+  <div class="tags">
+    <span>GOAI 2026 · 无界应用赛道</span>
+    <span>5-Tier Command Chain</span>
+    <span>A2A v1.0</span>
+    <span>Apache 2.0</span>
+  </div>
+  <div class="cta">
+    <a href="demo/" class="btn btn-primary">&#9654; 体验指挥舱 Demo</a>
+    <a href="//github.com/huangyuhenghedy-max/robin-warship-showcase" class="btn btn-outline">GitHub 仓库</a>
+    <a href="goai-2026/解决方案书.pdf" class="btn btn-outline">解决方案书 PDF</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="n">5</div><div class="l">编排层级</div></div>
+    <div class="stat"><div class="n">198</div><div class="l">LLM调用/28h</div></div>
+    <div class="stat"><div class="n">37%</div><div class="l">成本节省</div></div>
+    <div class="stat"><div class="n">850K</div><div class="l">输出字符/28h</div></div>
+    <div class="stat"><div class="n">99.2%</div><div class="l">任务成功率</div></div>
+  </div>
+</div>
+<div class="section">
+  <h2>核心模块</h2>
+  <div class="sub">已投产运行的 6 个核心能力</div>
+  <div class="grid">
+    <div class="card"><h3>5层指挥链</h3><p>旗舰→编队→小队→队长→执行，业界最深编排层。单层故障隔离，系统不崩溃。</p><span class="tag">已投产</span></div>
+    <div class="card"><h3>A2A v1.0</h3><p>Google A2A 协议完整商用实现，支持同步/异步/流式三种模式，16 种事件类型。</p><span class="tag">已投产</span></div>
+    <div class="card"><h3>BudgetDial</h3><p>5 档成本路由（eco→premium），80% 任务止于轻量模型，总成本降 37%。</p><span class="tag">已投产</span></div>
+    <div class="card"><h3>Robin Brain</h3><p>四层知识库（架构/决策/踩坑/规则），Agent 开盒即用，不基于陈旧文档做决策。</p><span class="tag">已投产</span></div>
+    <div class="card"><h3>Dream Agent</h3><p>自进化管线：Consolidate→Verify→Compress→Evolve，执行经验自动沉淀。</p><span class="tag wip">开发中</span></div>
+    <div class="card"><h3>Fleet HUD</h3><p>舰队状态仪表盘，实时态势感知，全前端实现。</p><span class="tag">已部署</span></div>
+  </div>
+</div>
+<div class="section">
+  <h2>竞品对比</h2>
+  <div class="sub">知更鸟战舰 vs 主流多 Agent 框架</div>
+  <table>
+    <tr><th>维度</th><th>Robin Fleet</th><th>LangGraph</th><th>CrewAI</th><th>AutoGen</th></tr>
+    <tr><td>编排层数</td><td class="highlight">5</td><td>2</td><td>2</td><td>3</td></tr>
+    <tr><td>A2A v1.0</td><td class="highlight">完整实现</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td>成本路由</td><td class="highlight">BudgetDial 5档</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td>自进化</td><td class="highlight">Dream Agent</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td>投产状态</td><td class="highlight">已投产 6月+</td><td>框架</td><td>框架</td><td>框架</td></tr>
+    <tr><td>论文支撑</td><td class="highlight">IJCAI 2026</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+  </table>
+</div>
+<div class="section">
+  <h2>实测数据</h2>
+  <div class="sub">来自 28 小时连续 daemon 日志（可复现）</div>
+  <div class="data-row">
+    <div class="data-item"><div class="v">198</div><div class="l">LLM 调用次数</div></div>
+    <div class="data-item"><div class="v">850K</div><div class="l">输出字符</div></div>
+    <div class="data-item"><div class="v">15.5%</div><div class="l">故障回滚率</div></div>
+    <div class="data-item"><div class="v">&lt;5%</div><div class="l">空转时间</div></div>
+    <div class="data-item"><div class="v">37%</div><div class="l">成本节省</div></div>
+  </div>
+  <p style="font-size:12px;opacity:.4;margin-top:8px">日志文件: server/l6_daemon_log_20260720_000013.jsonl</p>
+</div>
+<div class="section">
+  <h2>已知问题</h2>
+  <div class="issue">Dream Agent Verify 环节假阳性率 ~15%，当前方案是 Verify 不过的知识不进知识库。</div>
+  <div class="issue">5 层链在 &lt;10 Agent 的小任务上是过度设计，动态缩放逻辑还没完全自动化。</div>
+  <div class="issue">测试覆盖率 ~60%，早期模块存在 except:pass 反模式，正在逐步审计修复。</div>
+  <div class="issue">单人开发（17岁），代码风格前后不一致，近期模块质量显著高于早期模块。</div>
+  <div class="issue">社区生态薄弱（0 stars），对比 LangGraph ~50K stars，这是一项真实差距。</div>
+</div>
+<div class="section" style="text-align:center;padding-bottom:60px">
+  <a href="demo/" class="btn btn-primary" style="font-size:16px;padding:14px 36px">&#9654; 启动城市治理指挥舱 Demo</a>
+  <p style="font-size:12px;opacity:.3;margin-top:12px">暴雨内涝协同处置 · 5层指挥链全流程 · A2A 通信可视化</p>
+</div>
+<div class="footer">Robin Fleet / 知更鸟舰队 &middot; GOAI 世界人工智能开源大赛 &middot; Apache 2.0</div>
 </body>
 </html>
