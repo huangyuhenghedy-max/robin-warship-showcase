@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知更鸟战舰 · 城市治理智能指挥舱</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0b0e17;
+    color: #c8d6e5;
+    font-family: 'Segoe UI', 'PingFang SC', Roboto, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  /* 科技感背景 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 20% 30%, rgba(0,180,255,0.03) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 70%, rgba(0,255,200,0.02) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 12px 20px;
+    position: relative;
+    z-index: 1;
+    gap: 10px;
+  }
+  /* 顶部标题栏 */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,200,255,0.2);
+  }
+  .header h1 {
+    font-size: 20px;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #00d4ff, #00ffab);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(0,212,255,0.3);
+  }
+  .header .status {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 13px;
+  }
+  .header .status .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 5px;
+    animation: pulse 1.5s infinite;
+  }
+  .dot.green { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+  .dot.blue { background: #00aaff; box-shadow: 0 0 8px #00aaff; }
+  .dot.red { background: #ff3355; box-shadow: 0 0 8px #ff3355; }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .header .status .badge {
+    background: rgba(0,200,255,0.15);
+    padding: 2px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,200,255,0.3);
+  }
+  /* 主内容区 */
+  .main {
+    display: flex;
+    flex: 1;
+    gap: 14px;
+    min-height: 0;
+  }
+  /* 左侧面板 — HUD仪表盘 */
+  .left-panel {
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .hud-card {
+    background: rgba(12, 20, 35, 0.8);
+    border: 1px solid rgba(0,180,255,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 20px rgba(0,100,255,0.05);
+  }
+  .hud-card .title {
+    font-size: 11px;
+    color: #6b7a8f;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .hud-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .hud-card .value .unit { font-size: 14px; color: #6b7a8f; font-weight: 400; }
+  .hud-card .sub {
+    font-size: 12px;
+    color: #8a9bb5;
+    margin-top: 4px;
+  }
+  .hud-row {
+    display: flex;
+    gap: 8px;
+  }
+  .hud-row .hud-card { flex: 1; }
+  /* 进度条 */
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00aaff, #00ff88);
+    transition: width 1s ease;
+  }
+  /* 右侧主区域 */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  /* 指挥链树形图 */
+  .chain-section {
+    flex: 1;
+    background: rgba(12, 20, 35, 0.5);
+    border: 1px solid rgba(0,180,255,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chain-section .title {
+    font-size: 12px;
+    color: #6b7a8f;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .chain-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: calc(100% - 30px);
+    justify-content: center;
+  }
+  .chain-level {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    position: relative;
+    width: 100%;
+  }
+  .chain-node {
+    background: rgba(0,180,255,0.08);
+    border: 1px solid rgba(0,200,255,0.3);
+    border-radius: 6px;
+    padding: 4px 16px;
+    font-size: 12px;
+    color: #a0c4ff;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s;
+    min-width: 70px;
+  }
+  .chain-node.active {
+    background: rgba(0,255,136,0.15);
+    border-color: #00ff88;
+    color: #00ff88;
+    box-shadow: 0 0 20px rgba(0,255,136,0.2);
+  }
+  .chain-node .label {
+    font-size: 9px;
+    color: #6b7a8f;
+    margin-top: 2px;
+  }
+  .chain-level .connector {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 2px;
+    height: 12px;
+    background: rgba(0,200,255,0.3);
+    transform: translateX(-50%);
+  }
+  .chain-level:last-child .connector { display: none; }
+  /* A2A通信动画区域 */
+  .a2a-section {
+    height: 110px;
+    background: rgba(12, 20, 35, 0.5);
+    border: 1px solid rgba(0,180,255,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .a2a-section .title {
+    font-size: 11px;
+    color: #6b7a8f;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .a2a-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 20px);
+  }
+  #a2aCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  /* 控制按钮 */
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 0;
+  }
+  .btn {
+    border: none;
+    padding: 8px 28px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #00aaff, #0077ff);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0,100,255,0.3);
+  }
+  .btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0,100,255,0.5);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.05);
+    color: #8a9bb5;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  /* 日志区域 */
+  .log-section {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,200,255,0.1);
+    border-radius: 6px;
+    padding: 4px 10px;
+    max-height: 50px;
+    overflow-y: auto;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: #8a9bb5;
+    line-height: 1.5;
+  }
+  .log-section::-webkit-scrollbar { width: 0; }
+  .log-entry { margin: 0; }
+  .log-entry .time { color: #6b7a8f; }
+  .log-entry .msg { color: #a0c4ff; }
+  .log-entry .msg.success { color: #00ff88; }
+  .log-entry .msg.warn { color: #ffaa33; }
+  /* 响应等级指示 */
+  .response-level {
+    text-align: center;
+    font-size: 13px;
+    padding: 4px 0;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    margin-top: 4px;
+  }
+  .response-level .level { font-weight: 700; letter-spacing: 2px; }
+  .level.iv { color: #ffaa33; }
+  .level.iii { color: #ff6633; }
+  .level.ii { color: #ff3355; text-shadow: 0 0 10px #ff3355; }
+  .level.i { color: #ff0055; }
+  /* 响应式 */
+  @media (max-width: 800px) {
+    .left-panel { width: 200px; }
+    .chain-node { font-size: 10px; padding: 3px 10px; min-width: 55px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⚡ 知更鸟战舰 · 城市治理指挥舱</h1>
+    <div class="status">
+      <span><span class="dot green"></span>系统在线</span>
+      <span><span class="dot blue"></span>A2A v1.0</span>
+      <span class="badge">Ⅱ级待命</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- 左侧 HUD -->
+    <div class="left-panel">
+      <div class="hud-card">
+        <div class="title">🌧 实时雨量</div>
+        <div class="value"><span id="rainValue">0</span><span class="unit">mm/h</span></div>
+        <div class="sub">过去10分钟</div>
+        <div class="progress-bar"><div class="fill" id="rainBar"></div></div>
+      </div>
+      <div class="hud-row">
+        <div class="hud-card">
+          <div class="title">📌 积水点</div>
+          <div class="value"><span id="floodValue">0</span></div>
+          <div class="sub">已处置 <span id="floodResolved">0</span></div>
+        </div>
+        <div class="hud-card">
+          <div class="title">🚁 救援资源</div>
+          <div class="value"><span id="rescueValue">0</span></div>
+          <div class="sub">已调度 <span id="rescueDeployed">0</span></div>
+        </div>
+      </div>
+      <div class="hud-card" style="flex:1;">
+        <div class="title">📊 协同态势</div>
+        <div style="font-size:12px; margin-top:4px;">
+          <div>旗舰: <span id="statusFlag">待命</span></div>
+          <div>编队: <span id="statusFleet">待命</span></div>
+          <div>小队: <span id="statusSquad">待命</span></div>
+          <div>队长: <span id="statusCaptain">待命</span></div>
+          <div>执行: <span id="statusExecutor">待命</span></div>
+        </div>
+        <div style="font-size:11px; margin-top:6px; display:flex; gap:12px;">
+          <div>⚡ BudgetDial: <span id="budgetDialDisplay" style="color:#00ff88;">eco</span></div>
+          <div>🧠 Robin Brain: <span id="robinBrainStatus" style="color:#aa88ff;">就绪</span></div>
+        </div>
+        <div class="response-level">
+          当前响应等级: <span class="level iv" id="responseLevelDisplay">Ⅳ级 (蓝色)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧 -->
+    <div class="right-panel">
+      <!-- 指挥链 -->
+      <div class="chain-section">
+        <div class="title">🔗 5层指挥链 · A2A v1.0 互联</div>
+        <div class="chain-tree" id="chainTree">
+          <div class="chain-level">
+            <div class="chain-node" data-level="0">🚩 旗舰 Agent<div class="label">城市治理中枢</div></div>
+            <div class="connector"></div>
+          </div>
+          <div class="chain-level">
+            <div class="chain-node" data-level="1">⛵ 编队 Agent<div class="label">委办局协同</div></div>
+            <div class="connector"></div>
+          </div>
+          <div class="chain-level">
+            <div class="chain-node" data-level="2">🚤 小队 Agent<div class="label">区域调度</div></div>
+            <div class="connector"></div>
+          </div>
+          <div class="chain-level">
+            <div class="chain-node" data-level="3">👤 队长 Agent<div class="label">现场协调</div></div>
+            <div class="connector"></div>
+          </div>
+          <div class="chain-level">
+            <div class="chain-node" data-level="4">🛠 执行 Agent<div class="label">任务处理</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A2A通信动画 -->
+      <div class="a2a-section">
+        <div class="title">📡 A2A 协议通信 · 消息流</div>
+        <div class="a2a-canvas-wrap">
+          <canvas id="a2aCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- 控制按钮 -->
+      <div class="controls">
+        <button class="btn btn-primary" id="btnStart">🚨 启动Ⅱ级响应</button>
+        <button class="btn btn-secondary" id="btnReset">⟲ 重置</button>
+      </div>
+
+      <!-- 日志 -->
+      <div class="log-section" id="logContainer">
+        <div class="log-entry"><span class="time">[00:00]</span> <span class="msg">系统就绪，等待指令...</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ===== 状态 =====
+  const state = {
+    running: false,
+    rain: 0,
+    maxRain: 80,
+    flood: 0,
+    floodResolved: 0,
+    rescue: 20,
+    rescueDeployed: 0,
+    level: 4, // 4=IV,3=III,2=II,1=I
+    chainActive: -1, // -1 none, 0-4
+    step: 0,
+    timer: null,
+    a2aAnimId: null,
+    a2aMessages: [],
+    logs: []
+  };
+
+  // ===== DOM 引用 =====
+  const $ = id => document.getElementById(id);
+  const rainValue = $('rainValue');
+  const rainBar = $('rainBar');
+  const floodValue = $('floodValue');
+  const floodResolved = $('floodResolved');
+  const rescueValue = $('rescueValue');
+  const rescueDeployed = $('rescueDeployed');
+  const statusFlag = $('statusFlag');
+  const statusFleet = $('statusFleet');
+  const statusSquad = $('statusSquad');
+  const statusCaptain = $('statusCaptain');
+  const statusExecutor = $('statusExecutor');
+  const responseLevelDisplay = $('responseLevelDisplay');
+  const budgetDialDisplay = $('budgetDialDisplay');
+  const robinBrainStatus = $('robinBrainStatus');
+  const logContainer = $('logContainer');
+  const btnStart = $('btnStart');
+  const btnReset = $('btnReset');
+  const chainNodes = document.querySelectorAll('.chain-node');
+  const canvas = $('a2aCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // ===== 工具 =====
+  function addLog(msg, type = '') {
+    const now = new Date();
+    const t = '[' + now.toTimeString().slice(0,8) + ']';
+    const div = document.createElement('div');
+    div.className = 'log-entry';
+    div.innerHTML = `<span class="time">${t}</span> <span class="msg ${type}">${msg}</span>`;
+    logContainer.appendChild(div);
+    logContainer.scrollTop = logContainer.scrollHeight;
+    if (logContainer.children.length > 50) logContainer.removeChild(logContainer.firstChild);
+  }
+
+  function updateHUD() {
+    rainValue.textContent = Math.round(state.rain);
+    rainBar.style.width = Math.min(100, (state.rain / state.maxRain) * 100) + '%';
+    floodValue.textContent = state.flood;
+    floodResolved.textContent = state.floodResolved;
+    rescueValue.textContent = state.rescue;
+    rescueDeployed.textContent = state.rescueDeployed;
+    // 根据等级调整颜色
+    const levelMap = { 4: 'IV', 3: 'III', 2: 'II', 1: 'I' };
+    const colorMap = { 4: 'iv', 3: 'iii', 2: 'ii', 1: 'i' };
+    const nameMap = { 4: 'Ⅳ级 (蓝色)', 3: 'Ⅲ级 (黄色)', 2: 'Ⅱ级 (橙色)', 1: 'Ⅰ级 (红色)' };
+    responseLevelDisplay.textContent = nameMap[state.level] || 'Ⅳ级';
+    responseLevelDisplay.className = 'level ' + colorMap[state.level];
+  }
+
+  function updateChain(level) {
+    state.chainActive = level;
+    chainNodes.forEach((node, idx) => {
+      node.classList.toggle('active', idx <= level);
+    });
+    const statuses = ['待命','待命','待命','待命','待命'];
+    if (level >= 0) {
+      for (let i = 0; i <= level; i++) {
+        statuses[i] = '⚡激活';
+      }
+    }
+    statusFlag.textContent = statuses[0];
+    statusFleet.textContent = statuses[1];
+    statusSquad.textContent = statuses[2];
+    statusCaptain.textContent = statuses[3];
+    statusExecutor.textContent = statuses[4];
+  }
+
+  // ===== A2A通信动画 =====
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  class Message {
+    constructor(from, to, label, color = '#00aaff') {
+      this.from = from; this.to = to; this.label = label;
+      this.color = color;
+      this.progress = 0; // 0-1
+      this.speed = 0.02 + Math.random() * 0.03;
+      this.done = false;
+    }
+    update() {
+      this.progress += this.speed;
+      if (this.progress >= 1) { this.progress = 1; this.done = true; }
+    }
+  }
+
+  function drawA2A() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // 绘制节点
+    const nodes = [
+      { x: w * 0.1, y: h * 0.5, label: 'Flagship', color: '#00aaff' },
+      { x: w * 0.3, y: h * 0.5, label: 'Fleet', color: '#00dd88' },
+      { x: w * 0.5, y: h * 0.5, label: 'Squad', color: '#ffaa33' },
+      { x: w * 0.7, y: h * 0.5, label: 'Captain', color: '#ff66aa' },
+      { x: w * 0.9, y: h * 0.5, label: 'Executor', color: '#aa88ff' }
+    ];
+
+    // 绘制连线（静态）
+    ctx.strokeStyle = 'rgba(0,200,255,0.15)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < nodes.length - 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(nodes[i].x, nodes[i].y);
+      ctx.lineTo(nodes[i+1].x, nodes[i+1].y);
+      ctx.stroke();
+    }
+
+    // 绘制节点
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = n.color;
+      ctx.shadowColor = n.color;
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.font = '9px sans-serif';
+      ctx.fillStyle = '#a0c4ff';
+      ctx.textAlign = 'center';
+      ctx.fillText(n.label, n.x, n.y - 14);
+    });
+
+    // 绘制消息流
+    state.a2aMessages = state.a2aMessages.filter(m => !m.done);
+    state.a2aMessages.forEach(m => {
+      const fromNode = nodes[m.from];
+      const toNode = nodes[m.to];
+      if (!fromNode || !toNode) return;
+      const x = fromNode.x + (toNode.x - fromNode.x) * m.progress;
+      const y = fromNode.y + (toNode.y - fromNode.y) * m.progress;
+      // 发光点
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, 2 * Math.PI);
+      ctx.fillStyle = m.color;
+      ctx.shadowColor = m.color;
+      ctx.shadowBlur = 15;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // 标签
+      if (m.progress < 0.9) {
+        ctx.font = '8px monospace';
+        ctx.fillStyle = '#8a9bb5';
+        ctx.textAlign = 'center';
+        ctx.fillText(m.label, x, y - 12);
+      }
+      m.update();
+    });
+
+    // 自动生成新消息（如果正在运行）
+    if (state.running && Math.random() < 0.02) {
+      const from = Math.floor(Math.random() * 4);
+      const to = from + 1;
+      const labels = ['A2A:CardFetch', 'A2A:TaskAssign', 'A2A:StatusReport', 'A2A:CmdAck', 'A2A:DataSync'];
+      const label = labels[Math.floor(Math.random() * labels.length)];
+      const colors = ['#00aaff','#00ff88','#ffaa33','#ff66aa','#aa88ff'];
+      state.a2aMessages.push(new Message(from, to, label, colors[from]));
+    }
+
+    state.a2aAnimId = requestAnimationFrame(drawA2A);
+  }
+
+  // ===== 场景模拟 =====
+  function simulateStep() {
+    if (!state.running) return;
+
+    // 增加雨量
+    state.rain = Math.min(state.maxRain, state.rain + 1.5 + Math.random() * 2);
+    // 积水点增加
+    state.flood = Math.min(30, state.flood + Math.floor(Math.random() * 3));
+    // 消耗救援资源
+    state.rescue = Math.max(0, state.rescue - Math.floor(Math.random() * 2));
+    // 已调度增加
+    state.rescueDeployed = Math.min(state.rescueDeployed + Math.floor(Math.random() * 2), 50);
+    // 已处置积水
+    if (state.floodResolved < state.flood) {
+      state.floodResolved += Math.floor(Math.random() * 2);
+    }
+
+    // 根据雨量调整等级
+    if (state.rain > 60) state.level = 1;
+    else if (state.rain > 40) state.level = 2;
+    else if (state.rain > 20) state.level = 3;
+    else state.level = 4;
+
+    // 指挥链激活
+    if (state.rain > 5) {
+      const activeLevel = Math.min(4, Math.floor((state.rain - 5) / 15));
+      updateChain(activeLevel);
+    } else {
+      updateChain(-1);
+    }
+
+    updateHUD();
+
+    // 更新 BudgetDial 与 Robin Brain 状态
+    if (state.rain > 30) {
+      budgetDialDisplay.textContent = 'premium';
+      budgetDialDisplay.style.color = '#ff3355';
+    } else if (state.rain > 15) {
+      budgetDialDisplay.textContent = 'standard';
+      budgetDialDisplay.style.color = '#ffaa33';
+    } else {
+      budgetDialDisplay.textContent = 'eco';
+      budgetDialDisplay.style.color = '#00ff88';
+    }
+    if (state.rain > 10 && Math.random() < 0.15) {
+      robinBrainStatus.textContent = '📖 检索中';
+      robinBrainStatus.style.color = '#ffaa33';
+    } else if (state.rain > 5 && Math.random() < 0.1) {
+      robinBrainStatus.textContent = '✅ 预案已应用';
+      robinBrainStatus.style.color = '#00ff88';
+    } else {
+      robinBrainStatus.textContent = '就绪';
+      robinBrainStatus.style.color = '#aa88ff';
+    }
+
+    // 日志
+    if (Math.random() < 0.3) {
+      const msgs = [
+        '旗舰: 雨量监测数据更新',
+        '编队: 交通疏导方案下发',
+        '小队: 越秀片区积水点排查',
+        '队长: 调度抽水设备至天河',
+        '执行: 工单 #' + Math.floor(Math.random()*1000) + ' 已派发',
+        'A2A: 跨委办局同步态势',
+        'BudgetDial: 当前路由 ' + budgetDialDisplay.textContent,
+        'Robin Brain: ' + (robinBrainStatus.textContent === '就绪' ? '就绪' : '检索历史预案')
+      ];
+      addLog(msgs[Math.floor(Math.random() * msgs.length)], '');
+    }
+
+    state.timer = setTimeout(simulateStep, 800 + Math.random() * 600);
+  }
+
+  // ===== 启动Ⅱ级响应 =====
+  function startResponse() {
+    if (state.running) return;
+    state.running = true;
+    btnStart.disabled = true;
+    btnStart.textContent = '⏳ 处置中...';
+    addLog('🚨 启动Ⅱ级响应！全链路激活', 'success');
+    // 初始化雨量
+    state.rain = 15;
+    state.flood = 5;
+    state.rescue = 20;
+    state.floodResolved = 0;
+    state.rescueDeployed = 0;
+    state.level = 2;
+    updateHUD();
+    updateChain(0);
+    // 模拟A2A消息
+    state.a2aMessages.push(new Message(0, 1, 'A2A:Activate', '#00aaff'));
+    state.a2aMessages.push(new Message(1, 2, 'A2A:Deploy', '#00dd88'));
+    state.a2aMessages.push(new Message(2, 3, 'A2A:Assign', '#ffaa33'));
+    state.a2aMessages.push(new Message(3, 4, 'A2A:Execute', '#ff66aa'));
+    // 额外演示 BudgetDial 与 Robin Brain 消息流
+    setTimeout(() => {
+      state.a2aMessages.push(new Message(1, 2, 'BudgetDial:standard', '#ffaa33'));
+    }, 700);
+    setTimeout(() => {
+      state.a2aMessages.push(new Message(3, 4, 'RobinBrain:预案', '#aa88ff'));
+    }, 1500);
+    // Robin Brain 检索
+    setTimeout(() => {
+      addLog('🧠 Robin Brain: 检索到历史预案"暴雨内涝2025"，匹配度92%', 'success');
+      robinBrainStatus.textContent = '✅ 预案已应用';
+      robinBrainStatus.style.color = '#00ff88';
+    }, 300);
+    // BudgetDial 自动路由
+    setTimeout(() => {
+      budgetDialDisplay.textContent = 'standard';
+      budgetDialDisplay.style.color = '#ffaa33';
+      addLog('⚡ BudgetDial: 自动切换至 standard 路由（综合任务难度）', '');
+    }, 600);
+    addLog('旗舰→编队: A2A Activate 指令下发', 'success');
+    setTimeout(() => addLog('编队→小队: A2A Deploy 区域分解', 'success'), 1200);
+    setTimeout(() => addLog('小队→队长: A2A Assign 网格分派', 'success'), 1800);
+    setTimeout(() => addLog('队长→执行: A2A Execute 工单生成', 'success'), 2400);
+    // 启动模拟循环
+    setTimeout(() => {
+      simulateStep();
+    }, 500);
+  }
+
+  // ===== 重置 =====
+  function resetAll() {
+    if (state.timer) { clearTimeout(state.timer); state.timer = null; }
+    state.running = false;
+    btnStart.disabled = false;
+    btnStart.textContent = '🚨 启动Ⅱ级响应';
+    state.rain = 0; state.flood = 0; state.floodResolved = 0;
+    state.rescue = 20; state.rescueDeployed = 0;
+    state.level = 4;
+    updateHUD();
+    updateChain(-1);
+    state.a2aMessages = [];
+    addLog('系统已重置，返回待命状态', '');
+    // 清空日志保留一条
+    while (logContainer.children.length > 1) logContainer.removeChild(logContainer.firstChild);
+  }
+
+  // ===== 初始化 =====
+  function init() {
+    resizeCanvas();
+    updateHUD();
+    updateChain(-1);
+    drawA2A();
+    btnStart.addEventListener('click', startResponse);
+    btnReset.addEventListener('click', resetAll);
+    // 模拟初始状态
+    addLog('知更鸟战舰 v2.0 · 城市治理智能指挥舱', 'success');
+    addLog('A2A v1.0 协议就绪 · BudgetDial 在线', '');
+    addLog('Robin Brain 四层知识库加载完成', '');
+    addLog('等待指挥指令...', '');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
