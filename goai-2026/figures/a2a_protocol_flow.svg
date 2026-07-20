@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" font-family="'Microsoft YaHei','SimHei',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a1628"/>
+      <stop offset="100%" style="stop-color:#1a2a4a"/>
+    </linearGradient>
+    <linearGradient id="gA2A" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#004d40"/>
+      <stop offset="100%" style="stop-color:#00796b"/>
+    </linearGradient>
+    <linearGradient id="gResp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e65100"/>
+      <stop offset="100%" style="stop-color:#ef6c00"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#4a90d9"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#4caf50"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ff9800"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  
+  <text x="640" y="38" text-anchor="middle" fill="#4a90d9" font-size="22" font-weight="bold" letter-spacing="3">A2A v1.0 协议通信流程</text>
+  <text x="640" y="58" text-anchor="middle" fill="#7f8c8d" font-size="12">Agent-to-Agent Protocol — Task Lifecycle & Event-Driven Communication</text>
+
+  <!-- === Top: Task Lifecycle === -->
+  <text x="100" y="95" fill="#4a90d9" font-size="14" font-weight="bold">A2A Task 生命周期</text>
+
+  <!-- Lifecycle boxes -->
+  <rect x="80" y="105" width="150" height="40" rx="20" fill="url(#gA2A)" filter="url(#shadow)"/>
+  <text x="155" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">submitted</text>
+  <text x="155" y="110" text-anchor="middle" fill="#80cbc4" font-size="8">任务已提交</text>
+
+  <line x1="230" y1="125" x2="280" y2="125" stroke="#4a90d9" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <rect x="290" y="105" width="150" height="40" rx="20" fill="#1a237e" filter="url(#shadow)"/>
+  <text x="365" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">working</text>
+  <text x="365" y="110" text-anchor="middle" fill="#9fa8da" font-size="8">任务执行中</text>
+
+  <line x1="440" y1="125" x2="490" y2="125" stroke="#4a90d9" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- input_required branch -->
+  <rect x="500" y="85" width="170" height="40" rx="20" fill="#e65100" filter="url(#shadow)"/>
+  <text x="585" y="110" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">input_required</text>
+  <text x="585" y="90" text-anchor="middle" fill="#ffcc80" font-size="8">需要人工输入</text>
+
+  <line x1="670" y1="105" x2="720" y2="105" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange)"/>
+  
+  <!-- back to working -->
+  <path d="M 585 125 Q 585 160 365 160 Q 155 160 155 145" fill="none" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowOrange)"/>
+  <text x="400" y="172" text-anchor="middle" fill="#ff9800" font-size="9">用户输入后继续执行</text>
+
+  <!-- main flow continues -->
+  <rect x="500" y="145" width="170" height="40" rx="20" fill="#c62828" filter="url(#shadow)"/>
+  <text x="585" y="170" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">failed</text>
+  <text x="585" y="150" text-anchor="middle" fill="#ef9a9a" font-size="8">任务失败</text>
+
+  <line x1="500" y1="165" x2="450" y2="165" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="385" y="162" text-anchor="middle" fill="#e74c3c" font-size="9">可重试</text>
+
+  <rect x="730" y="105" width="150" height="40" rx="20" fill="#2e7d32" filter="url(#shadow)"/>
+  <text x="805" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">completed</text>
+  <text x="805" y="110" text-anchor="middle" fill="#a5d6a7" font-size="8">任务完成</text>
+
+  <line x1="670" y1="165" x2="730" y2="145" stroke="#4caf50" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- === Middle: Multi-Agent Communication === -->
+  <text x="100" y="215" fill="#4a90d9" font-size="14" font-weight="bold">Agent间通信（A2A Messages）</text>
+
+  <!-- Client Agent -->
+  <rect x="100" y="235" width="200" height="60" rx="8" fill="#1a237e" filter="url(#shadow)"/>
+  <text x="200" y="262" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">🤖 请求方Agent</text>
+  <text x="200" y="280" text-anchor="middle" fill="#9fa8da" font-size="10">A2A Client · 发送任务</text>
+
+  <!-- Remote Agent -->
+  <rect x="980" y="235" width="200" height="60" rx="8" fill="#00695c" filter="url(#shadow)"/>
+  <text x="1080" y="262" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">🤖 执行方Agent</text>
+  <text x="1080" y="280" text-anchor="middle" fill="#80cbc4" font-size="10">A2A Server · 处理任务</text>
+
+  <!-- Message arrows -->
+  <line x1="300" y1="250" x2="980" y2="250" stroke="#4a90d9" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="640" y="245" text-anchor="middle" fill="#4a90d9" font-size="11">sendTask() → Task对象</text>
+
+  <line x1="980" y1="270" x2="300" y2="270" stroke="#4caf50" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="640" y="290" text-anchor="middle" fill="#4caf50" font-size="11">getTaskResult() → 结果返回</text>
+
+  <!-- SSE Stream -->
+  <rect x="400" y="320" width="480" height="35" rx="8" fill="#0a1628" stroke="#4a90d9" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="640" y="343" text-anchor="middle" fill="#4a90d9" font-size="11">SSE 流式推送: TaskStatusEvent → TaskArtifactUpdateEvent → ... → TaskFinalEvent</text>
+
+  <!-- === Bottom: Agent Card === -->
+  <text x="100" y="400" fill="#4a90d9" font-size="14" font-weight="bold">Agent Card — 能力声明与发现</text>
+
+  <rect x="80" y="415" width="350" height="90" rx="8" fill="#1a237e" stroke="#536dfe" stroke-width="1" filter="url(#shadow)"/>
+  <text x="255" y="438" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🔖 城管编队 Agent Card</text>
+  <text x="100" y="458" fill="#9fa8da" font-size="10">  name: \"城管编队\"</text>
+  <text x="100" y="473" fill="#9fa8da" font-size="10">  skills: [排水调度, 设施检查, 市容维护, 人员调度]</text>
+  <text x="100" y="488" fill="#9fa8da" font-size="10">  url: \"a2a://chengguan.fleet:19530\"</text>
+
+  <rect x="500" y="415" width="350" height="90" rx="8" fill="#00695c" stroke="#4db6ac" stroke-width="1" filter="url(#shadow)"/>
+  <text x="675" y="438" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🔖 交通编队 Agent Card</text>
+  <text x="520" y="458" fill="#80cbc4" font-size="10">  name: \"交通编队\"</text>
+  <text x="520" y="473" fill="#80cbc4" font-size="10">  skills: [交通疏导, 路障部署, 车辆调度, 路线规划]</text>
+  <text x="520" y="488" fill="#80cbc4" font-size="10">  url: \"a2a://traffic.fleet:19530\"</text>
+
+  <rect x="920" y="415" width="280" height="90" rx="8" fill="#e65100" stroke="#ef6c00" stroke-width="1" filter="url(#shadow)"/>
+  <text x="1060" y="438" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🔖 应急编队 Agent Card</text>
+  <text x="940" y="458" fill="#ffcc80" font-size="10">  name: \"应急编队\"</text>
+  <text x="940" y="473" fill="#ffcc80" font-size="10">  skills: [救援调度, 物资分配, 人员疏散]</text>
+  <text x="940" y="488" fill="#ffcc80" font-size="10">  url: \"a2a://emergency.fleet:19530\"</text>
+
+  <!-- Discovery -->
+  <rect x="80" y="530" width="1120" height="45" rx="10" fill="#0a1628" stroke="#2c3e50" stroke-width="1"/>
+  <text x="640" y="552" text-anchor="middle" fill="#95a5a6" font-size="11">Agent 发现机制：旗舰启动时扫描 Agent Registry → 获取所有 Agent Card → 构建编队拓扑 → 按需调度</text>
+  <text x="640" y="568" text-anchor="middle" fill="#7f8c8d" font-size="9">新Agent注册即自动发现，无需手工配置 · 支持Hot Reload · A2A v1.0 完全兼容</text>
+
+  <!-- Bottom bar -->
+  <rect x="80" y="600" width="1120" height="70" rx="8" fill="#0a1628" stroke="#4a90d9" stroke-width="1" opacity="0.6"/>
+  <text x="640" y="625" text-anchor="middle" fill="#4a90d9" font-size="13" font-weight="bold">技术特点</text>
+  <text x="640" y="648" text-anchor="middle" fill="#95a5a6" font-size="10">
+    基于Google A2A v1.0 · 16种事件类型 · 同步/异步/流式三种模式 · SSE实时推送 · 完全开源 · 可观测
+  </text>
+
+  <text x="640" y="690" text-anchor="middle" fill="#7f8c8d" font-size="10">知更鸟战舰 · Robin Fleet · 唯一完整实现A2A v1.0的国产开源多Agent系统</text>
+</svg>

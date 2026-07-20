@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robin Fleet · Command Center</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b1120;
+  --card:#111b2e;
+  --border:#1e2d4a;
+  --text:#94a3b8;
+  --text-bright:#e2e8f0;
+  --accent:#38bdf8;
+  --accent-dim:#1d4a6a;
+  --teal:#22d3ee;
+  --gold:#f59e0b;
+  --rose:#f43f5e;
+  --green:#22c55e;
+  --font:system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'JetBrains Mono','Cascadia Code','Fira Code','Consolas',monospace
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;overflow:hidden;user-select:none}
+/* Scan line effect */
+body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.03) 50%);background-size:100% 3px;pointer-events:none;z-index:9999}
+/* App shell */
+.app{display:grid;height:100vh;grid-template-rows:48px 1fr 44px;grid-template-areas:"top" "main" "bar";overflow:hidden}
+/* Top bar */
+.topbar{grid-area:top;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--border);background:rgba(17,27,46,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.topbar .brand{display:flex;align-items:center;gap:10px}
+.topbar .brand svg{width:22px;height:22px}
+.topbar .brand h1{font-size:14px;font-weight:600;color:var(--text-bright);letter-spacing:1px}
+.topbar .brand span{font-size:11px;color:var(--text);opacity:.6}
+.topbar .status-group{display:flex;align-items:center;gap:16px;font-size:12px}
+.status-item{display:flex;align-items:center;gap:5px}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.status-dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.status-dot.busy{background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse-dot 1s infinite}
+.status-dot.err{background:var(--rose);box-shadow:0 0 6px var(--rose)}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.badge{font-size:10px;padding:2px 10px;border-radius:10px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,.25)}
+/* Main grid */
+.main{grid-area:main;display:grid;grid-template-columns:240px 1fr 220px;gap:1px;background:var(--border);overflow:hidden}
+.main > *{background:var(--bg);overflow:hidden}
+
+/* ── Left: HUD metrics ── */
+.left{display:flex;flex-direction:column;gap:1px;padding:12px}
+.metric{background:var(--card);border-radius:8px;padding:12px;border:1px solid transparent}
+.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);opacity:.6;margin-bottom:4px}
+.metric-value{font-size:26px;font-weight:700;color:var(--text-bright);font-variant-numeric:tabular-nums}
+.metric-value .u{font-size:13px;font-weight:400;color:var(--text);margin-left:4px}
+.metric-sub{font-size:11px;color:var(--text);opacity:.5;margin-top:2px}
+.metric-bar{height:3px;margin-top:8px;background:var(--border);border-radius:2px;overflow:hidden}
+.metric-bar .f{height:100%;border-radius:2px;width:0%;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.metric-bar .f.accent{background:linear-gradient(90deg,var(--accent),var(--teal))}
+.metric-bar .f.gold{background:linear-gradient(90deg,var(--gold),#fbbf24)}
+.metric-bar .f.rose{background:linear-gradient(90deg,var(--rose),#fb7185)}
+.metric-bar .f.green{background:linear-gradient(90deg,var(--green),#4ade80)}
+.chain-status{background:var(--card);border-radius:8px;padding:12px;flex:1;border:1px solid transparent}
+.chain-status .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);opacity:.6;margin-bottom:8px}
+.layer-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px}
+.layer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--border)}
+.layer-dot.l0{background:#475569}
+.layer-dot.l1{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.layer-dot.l2{background:var(--teal);box-shadow:0 0 8px var(--teal)}
+.layer-dot.l3{background:#a78bfa;box-shadow:0 0 8px #a78bfa}
+.layer-dot.l4{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.layer-dot.l5{background:var(--rose);box-shadow:0 0 8px var(--rose)}
+.layer-row .name{color:var(--text);min-width:48px}
+.layer-row .state{color:var(--text);opacity:.4;font-size:11px;margin-left:auto}
+
+/* ── Center: Chain viz ── */
+.center{display:flex;flex-direction:column;padding:12px;gap:0;position:relative}
+.center::before{content:'5-TIER COMMAND CHAIN';position:absolute;top:16px;left:20px;font-size:10px;letter-spacing:3px;color:var(--text);opacity:.15;font-weight:600}
+.chain-grid{flex:1;display:grid;grid-template-rows:repeat(5,1fr);gap:6px;padding:30px 10px 10px}
+.tier{display:flex;align-items:center;gap:12px;padding:0 8px;transition:all .6s ease;opacity:.3}
+.tier.active{opacity:1}
+.tier.done{opacity:.7}
+.tier-indicator{width:4px;height:100%;border-radius:2px;transition:all .6s;background:var(--border)}
+.tier.active .tier-indicator{box-shadow:0 0 12px currentColor}
+.tier:nth-child(1) .tier-indicator{background:var(--accent);color:var(--accent)}
+.tier:nth-child(2) .tier-indicator{background:var(--teal);color:var(--teal)}
+.tier:nth-child(3) .tier-indicator{background:#a78bfa;color:#a78bfa}
+.tier:nth-child(4) .tier-indicator{background:var(--gold);color:var(--gold)}
+.tier:nth-child(5) .tier-indicator{background:var(--rose);color:var(--rose)}
+.tier-content{flex:1;display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-radius:6px;background:var(--card);border:1px solid transparent;transition:all .6s;min-height:44px}
+.tier.active .tier-content{border-color:currentColor;background:rgba(255,255,255,.03)}
+.tier.done .tier-content{background:rgba(34,197,94,.05)}
+.tier-name{font-size:13px;font-weight:600;color:var(--text-bright);min-width:60px}
+.tier-role{font-size:11px;color:var(--text);opacity:.6;min-width:90px}
+.tier-action{font-size:12px;color:var(--text);opacity:.4;transition:all .4s;font-family:var(--mono)}
+.tier.active .tier-action{opacity:1;color:currentColor}
+.tier-arrow{font-size:10px;color:var(--text);opacity:.2;margin-left:auto;transition:all .4s}
+.tier.active .tier-arrow{opacity:.6;color:currentColor;animation:arrow-bounce 1s infinite}
+@keyframes arrow-bounce{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* ── Right: A2A + Logs ── */
+.right{display:flex;flex-direction:column;gap:1px;padding:12px}
+.a2a-panel{background:var(--card);border-radius:8px;padding:12px;height:140px;border:1px solid transparent}
+.a2a-panel .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);opacity:.6;margin-bottom:4px}
+#a2aCanvas{width:100%;height:calc(100% - 20px);display:block;border-radius:4px}
+.log-panel{background:var(--card);border-radius:8px;padding:10px 12px;flex:1;border:1px solid transparent;display:flex;flex-direction:column}
+.log-panel .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);opacity:.6;margin-bottom:4px}
+.log-list{flex:1;overflow-y:auto;font-family:var(--mono);font-size:11px;line-height:1.6;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.log-list::-webkit-scrollbar{width:3px}
+.log-list::-webkit-scrollbar-track{background:transparent}
+.log-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.log-entry{display:flex;gap:8px;padding:1px 0;opacity:0;animation:fade-in .3s forwards}
+.log-entry .t{color:var(--text);opacity:.3;flex-shrink:0;width:48px}
+.log-entry .m{color:var(--text);opacity:.7}
+.log-entry.ok .m{color:var(--green)}
+.log-entry.warn .m{color:var(--gold)}
+.log-entry.err .m{color:var(--rose)}
+.log-entry.info .m{color:var(--accent)}
+@keyframes fade-in{to{opacity:1}}
+
+/* ── Bottom bar ── */
+.bottombar{grid-area:bar;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 20px;border-top:1px solid var(--border);background:rgba(17,27,46,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.btn{font-size:13px;padding:8px 24px;border-radius:6px;border:none;cursor:pointer;font-family:var(--font);font-weight:500;letter-spacing:.5px;transition:all .25s}
+.btn-primary{background:var(--accent);color:#0b1120}
+.btn-primary:hover{background:#60cfff;transform:translateY(-1px);box-shadow:0 4px 16px rgba(56,189,248,.3)}
+.btn-primary:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--card);color:var(--text-bright)}
+.btn-danger{background:var(--rose);color:#fff}
+.btn-danger:hover{background:#fb7185;transform:translateY(-1px)}
+.demo-hint{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--text);opacity:.3;letter-spacing:1px;pointer-events:none;text-align:center;animation:hint-pulse 2s infinite}
+@keyframes hint-pulse{0%,100%{opacity:.3}50%{opacity:.6}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h3l2-9 4 18 4-9h5" stroke="var(--accent)"/></svg>
+      <h1>Robin Fleet</h1>
+      <span>Command Center</span>
+    </div>
+    <div class="status-group">
+      <span class="status-item"><span class="status-dot on" id="sysDot"></span><span id="sysStatus">系统在线</span></span>
+      <span class="status-item"><span class="status-dot" id="a2aDot" style="background:var(--border)"></span>A2A v1.0</span>
+      <span class="badge" id="levelBadge">待命中</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Left: Metrics -->
+    <div class="left">
+      <div class="metric">
+        <div class="metric-label">实时雨量</div>
+        <div class="metric-value"><span id="rainVal">0</span><span class="u">mm/h</span></div>
+        <div class="metric-sub">过去10分钟 · 红色预警 ≥50mm/h</div>
+        <div class="metric-bar"><div class="f accent" id="rainBar"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">报告积水点</div>
+        <div class="metric-value"><span id="floodVal">0</span><span class="u">处</span></div>
+        <div class="metric-sub">已处置 <span id="floodDone">0</span> 处</div>
+        <div class="metric-bar"><div class="f rose" id="floodBar"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">调度资源</div>
+        <div class="metric-value"><span id="rescVal">0</span><span class="u">单元</span></div>
+        <div class="metric-sub">已到位 <span id="rescDeployed">0</span> 单元</div>
+        <div class="metric-bar"><div class="f green" id="rescBar"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">响应等级</div>
+        <div class="metric-value" id="respLevel" style="font-size:20px">—</div>
+        <div class="metric-sub">Ⅰ级=最高 Ⅳ级=最低</div>
+      </div>
+      <div class="chain-status">
+        <div class="label">指挥链状态</div>
+        <div class="layer-row"><span class="layer-dot l1"></span><span class="name">旗舰</span><span class="state" id="s5">待命</span></div>
+        <div class="layer-row"><span class="layer-dot l2"></span><span class="name">编队</span><span class="state" id="s4">待命</span></div>
+        <div class="layer-row"><span class="layer-dot l3"></span><span class="name">小队</span><span class="state" id="s3">待命</span></div>
+        <div class="layer-row"><span class="layer-dot l4"></span><span class="name">队长</span><span class="state" id="s2">待命</span></div>
+        <div class="layer-row"><span class="layer-dot l5"></span><span class="name">执行</span><span class="state" id="s1">待命</span></div>
+      </div>
+    </div>
+
+    <!-- Center: Chain visualization -->
+    <div class="center">
+      <div class="chain-grid" id="chainGrid">
+        <div class="tier" data-tier="5">
+          <div class="tier-indicator"></div>
+          <div class="tier-content">
+            <span class="tier-name">Flagship</span>
+            <span class="tier-role">旗舰 · 战略决策</span>
+            <span class="tier-action" id="ta5">—</span>
+            <span class="tier-arrow">▸</span>
+          </div>
+        </div>
+        <div class="tier" data-tier="4">
+          <div class="tier-indicator"></div>
+          <div class="tier-content">
+            <span class="tier-name">Fleet</span>
+            <span class="tier-role">编队 · 战术指挥</span>
+            <span class="tier-action" id="ta4">—</span>
+            <span class="tier-arrow">▸</span>
+          </div>
+        </div>
+        <div class="tier" data-tier="3">
+          <div class="tier-indicator"></div>
+          <div class="tier-content">
+            <span class="tier-name">Squad</span>
+            <span class="tier-role">小队 · 任务分解</span>
+            <span class="tier-action" id="ta3">—</span>
+            <span class="tier-arrow">▸</span>
+          </div>
+        </div>
+        <div class="tier" data-tier="2">
+          <div class="tier-indicator"></div>
+          <div class="tier-content">
+            <span class="tier-name">Leader</span>
+            <span class="tier-role">队长 · 前线指挥</span>
+            <span class="tier-action" id="ta2">—</span>
+            <span class="tier-arrow">▸</span>
+          </div>
+        </div>
+        <div class="tier" data-tier="1">
+          <div class="tier-indicator"></div>
+          <div class="tier-content">
+            <span class="tier-name">Executor</span>
+            <span class="tier-role">执行 · 一线处置</span>
+            <span class="tier-action" id="ta1">—</span>
+            <span class="tier-arrow">▸</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-hint" id="demoHint">点击底部按钮启动暴雨内涝协同演练</div>
+    </div>
+
+    <!-- Right: A2A + Logs -->
+    <div class="right">
+      <div class="a2a-panel">
+        <div class="label">A2A Protocol · 跨Agent通信</div>
+        <canvas id="a2aCanvas"></canvas>
+      </div>
+      <div class="log-panel">
+        <div class="label">执行日志</div>
+        <div class="log-list" id="logList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <button class="btn btn-primary" id="btnStart" onclick="startExercise()">▶ 启动暴雨内涝演练</button>
+    <button class="btn btn-ghost" onclick="resetAll()">⟳ 重置</button>
+    <button class="btn btn-danger" onclick="emulateEmergency()" id="btnEmerg">⚠ 模拟故障</button>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const STATE = {
+  running: false,
+  tier: 0,      // 0-5
+  phase: 0,
+  rain: 0,
+  floods: 0,
+  resc: 0,
+  logs: [],
+  a2aAnim: null,
+  timer: null
+};
+
+// ── Log ──
+function log(msg, type='info') {
+  STATE.logs.push({t:Date.now(), m:msg, type});
+  const el = document.getElementById('logList');
+  const e = document.createElement('div');
+  e.className = `log-entry ${type}`;
+  const ts = new Date().toISOString().slice(11,19);
+  e.innerHTML = `<span class="t">${ts}</span><span class="m">${msg}</span>`;
+  el.appendChild(e);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── A2A Canvas ──
+function initA2A() {
+  const c = document.getElementById('a2aCanvas');
+  const ctx = c.getContext('2d');
+  const R = () => c.width = c.clientWidth * devicePixelRatio, c.height = c.clientHeight * devicePixelRatio;
+  R(); window.addEventListener('resize', R);
+  const nodes = [
+    {x:.15,y:.4,l:'Flagship'},{x:.35,y:.2,l:'Fleet'},{x:.55,y:.4,l:'Squad'},
+    {x:.55,y:.7,l:'Leader'},{x:.75,y:.55,l:'Executor'}
+  ];
+  let msgIdx = 0;
+  const msgs = [];
+  function draw() {
+    const w = c.width, h = c.height, s = devicePixelRatio;
+    ctx.clearRect(0,0,w,h);
+    ctx.globalAlpha = .08;
+    ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1;
+    for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){
+      ctx.beginPath(); ctx.moveTo(nodes[i].x*w,nodes[i].y*h);
+      ctx.lineTo(nodes[j].x*w,nodes[j].y*h); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    nodes.forEach((n,i)=>{
+      const x=n.x*w, y=n.y*h;
+      const grad = ctx.createRadialGradient(x,y,0,x,y,18*s);
+      const colors = ['#38bdf8','#22d3ee','#a78bfa','#f59e0b','#f43f5e'];
+      grad.addColorStop(0,colors[i]); grad.addColorStop(1,'transparent');
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(x,y,18*s,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = colors[i]; ctx.beginPath(); ctx.arc(x,y,4*s,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#e2e8f0'; ctx.font = `${10*s}px system-ui`; ctx.textAlign = 'center';
+      ctx.fillText(n.l,x,y+24*s);
+    });
+    // Animate messages
+    msgs.forEach((m,i)=>{
+      m.x += m.vx; m.y += m.vy; m.life--;
+      const alpha = Math.min(1, m.life / 20);
+      ctx.globalAlpha = alpha * .8;
+      ctx.fillStyle = '#22d3ee';
+      ctx.beginPath(); ctx.arc(m.x,m.y,3*s,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha = alpha * .4;
+      ctx.fillStyle = '#22d3ee'; ctx.font = `${9*s}px system-ui`;
+      ctx.fillText(m.text,m.x+10*s,m.y+4*s);
+    });
+    for(let i=msgs.length-1;i>=0;i--) if(msgs[i].life<=0) msgs.splice(i,1);
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  STATE.a2aSend = (from,to,text) => {
+    const f = nodes[from], t = nodes[to];
+    const w = c.width, h = c.height, s = devicePixelRatio;
+    const dx=t.x-f.x, dy=t.y-f.y, d=Math.sqrt(dx*dx+dy*dy);
+    if(d===0) return;
+    msgs.push({x:f.x*w,y:f.y*h,vx:dx/d*8*s,vy:dy/d*8*s,life:60,text:text||'msg'});
+    if(msgs.length>30) msgs.splice(0,msgs.length-30);
+  };
+  draw();
+}
+
+// ── Tier activation ──
+function activateTier(n, action) {
+  const tiers = document.querySelectorAll('.tier');
+  tiers.forEach(t=>t.classList.remove('active'));
+  for(let i=0;i<n;i++) {
+    if(i<tiers.length) {
+      tiers[i].classList.add('done');
+      tiers[i].classList.remove('active');
+    }
+  }
+  if(n>0 && n<=tiers.length) {
+    tiers[n-1].classList.add('active');
+    tiers[n-1].classList.remove('done');
+    document.getElementById(`ta${6-n}`).textContent = action;
+  }
+}
+
+function statusLayer(n, text) {
+  const map = {5:'s5',4:'s4',3:'s3',2:'s2',1:'s1'};
+  const el = document.getElementById(map[n]);
+  if(el) el.textContent = text;
+}
+
+// ── Phase execution ──
+const PHASES = [
+  {
+    tier:1, delay:1500, action:'监测到红色预警 · 6h降雨≥200mm',
+    update:()=>{STATE.rain=48;},
+    a2a:'预警→旗舰','layer':'旗舰'
+  },
+  {
+    tier:1, delay:2000, action:'研判态势 · 启动Ⅱ级应急响应',
+    update:()=>{STATE.rain=52;document.getElementById('levelBadge').textContent='Ⅱ级响应';},
+    a2a:'旗舰→编队','layer':'编队'
+  },
+  {
+    tier:2, delay:2500, action:'交通编队 · 封锁低洼路段',
+    update:()=>{STATE.floods=8;},
+    a2a:'编队→小队'
+  },
+  {
+    tier:2, delay:2000, action:'应急编队 · 调度救援力量',
+    update:()=>{STATE.resc=12;STATE.floods=12;},
+    a2a:'编队→小队'
+  },
+  {
+    tier:3, delay:2000, action:'天河小队 · 排查6个内涝点',
+    update:()=>{STATE.floods=15;STATE.resc=18;},
+    a2a:'小队→队长'
+  },
+  {
+    tier:3, delay:2000, action:'越秀小队 · 排查4个内涝点',
+    update:()=>{STATE.floods=20;STATE.resc=24;},
+    a2a:'小队→队长'
+  },
+  {
+    tier:4, delay:2000, action:'各街道队长 · 分派到具体积水点',
+    update:()=>{STATE.resc=32;STATE.floods=25;},
+    a2a:'队长→执行'
+  },
+  {
+    tier:5, delay:2500, action:'执行Agent · 生成工单+推送+回传',
+    update:()=>{STATE.resc=40;STATE.floods=28;},
+    a2a:'执行→回传'
+  },
+  {
+    tier:0, delay:2000, action:'全链路完成 · 态势更新',
+    update:()=>{STATE.resc=45;STATE.floods=30;},
+    a2a:'汇总→旗舰'
+  },
+];
+
+async function startExercise() {
+  if(STATE.running) return;
+  STATE.running = true;
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnEmerg').disabled = true;
+  document.getElementById('demoHint').style.display = 'none';
+  log('旗舰 Agent 启动 · 触发暴雨内涝响应流程','info');
+  document.getElementById('sysDot').className = 'status-dot busy';
+  document.getElementById('sysStatus').textContent = 'Ⅱ级响应中';
+  document.getElementById('a2aDot').className = 'status-dot busy'; 
+  document.getElementById('a2aDot').style = 'background:var(--gold)';
+
+  for(let i=0;i<PHASES.length;i++){
+    const p = PHASES[i];
+    STATE.tier = i+1;
+    if(p.tier>0) {
+      activateTier(p.tier, p.action);
+      statusLayer(p.tier, '执行中');
+    }
+    log(`${p.layer||'系统'}: ${p.action}`,'info');
+    if(p.update) p.update();
+    if(p.a2a && STATE.a2aSend) STATE.a2aSend(
+      Math.min(i%5,4),
+      (i+1)%5,
+      p.a2a
+    );
+    updateMetrics();
+    await sleep(p.delay);
+  }
+
+  // Done
+  activateTier(5, '全链路执行完成');
+  document.getElementById('levelBadge').textContent = '演练完成';
+  document.getElementById('sysDot').className = 'status-dot on';
+  document.getElementById('sysStatus').textContent = '响应完成';
+  document.getElementById('a2aDot').className = 'status-dot on';
+  document.getElementById('a2aDot').style = 'background:var(--green)';
+  document.getElementById('btnStart').textContent = '✓ 完成';
+  log('✅ 暴雨内涝全链路处置完成','ok');
+  log('⏱ 全流程耗时: ' + (PHASES.reduce((a,p)=>a+p.delay,0)/1000).toFixed(0) + 's（真实场景: ~8-12h 缩短至 15-30min）','ok');
+  STATE.running = false;
+}
+
+function updateMetrics() {
+  document.getElementById('rainVal').textContent = Math.round(STATE.rain);
+  document.getElementById('rainBar').style.width = Math.min(100, STATE.rain*2) + '%';
+  document.getElementById('floodVal').textContent = STATE.floods;
+  document.getElementById('floodBar').style.width = Math.min(100, STATE.floods*3) + '%';
+  document.getElementById('floodDone').textContent = Math.round(STATE.floods * .7);
+  document.getElementById('rescVal').textContent = STATE.resc;
+  document.getElementById('rescBar').style.width = Math.min(100, STATE.resc*2) + '%';
+  document.getElementById('rescDeployed').textContent = Math.round(STATE.resc * .85);
+  const levels = ['—','Ⅰ级响应','Ⅰ级响应','Ⅱ级响应','Ⅲ级响应','Ⅳ级响应'];
+  const lvlIdx = STATE.rain > 80 ? 0 : STATE.rain > 50 ? 0 : STATE.rain > 30 ? 2 : STATE.rain > 10 ? 3 : 4;
+  const colors = ['var(--rose)','var(--rose)','var(--gold)','var(--gold)','var(--accent)'];
+  document.getElementById('respLevel').textContent = levels[lvlIdx] || '—';
+  document.getElementById('respLevel').style.color = colors[lvlIdx] || 'var(--text)';
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function resetAll() {
+  if(STATE.running) return;
+  STATE.rain=0; STATE.floods=0; STATE.resc=0;
+  STATE.tier=0;
+  document.querySelectorAll('.tier').forEach(t=>{t.classList.remove('active','done')});
+  for(let i=1;i<=5;i++) {
+    document.getElementById(`ta${i}`).textContent = '—';
+    statusLayer(i, '待命');
+  }
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStart').textContent = '▶ 启动暴雨内涝演练';
+  document.getElementById('btnEmerg').disabled = false;
+  document.getElementById('sysDot').className = 'status-dot on';
+  document.getElementById('sysStatus').textContent = '系统在线';
+  document.getElementById('a2aDot').className = 'status-dot on';
+  document.getElementById('a2aDot').style = 'background:var(--border)';
+  document.getElementById('levelBadge').textContent = '待命中';
+  document.getElementById('demoHint').style.display = 'block';
+  document.getElementById('logList').innerHTML = '';
+  document.getElementById('rainBar').style.width = '0%';
+  document.getElementById('floodBar').style.width = '0%';
+  document.getElementById('rescBar').style.width = '0%';
+  updateMetrics();
+  log('系统已重置，等待指令','info');
+}
+
+function emulateEmergency() {
+  if(STATE.running) return;
+  startExercise();
+  setTimeout(()=>{
+    log('⚠ 模拟故障: 编队Agent通信超时 · 触发优雅降级','warn');
+    log('🔄 自动降级: 跳过编队层 · 旗舰直连小队','warn');
+    document.getElementById('sysDot').className = 'status-dot err';
+    document.getElementById('sysStatus').textContent = '部分降级';
+    setTimeout(()=>{
+      log('✅ 降级恢复: 编队Agent重连成功','ok');
+      document.getElementById('sysDot').className = 'status-dot on';
+    },3000);
+  },4000);
+}
+
+// ── Init ──
+window.onload = function(){
+  initA2A();
+  log('Robin Fleet Command Center v2.0 已就绪','info');
+  log('A2A v1.0 协议引擎 · 5层指挥链 · 在线','info');
+  log('提示: 点击底部按钮启动暴雨内涝演练','info');
+};
+</script>
+</body>
+</html>
